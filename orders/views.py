@@ -1,18 +1,49 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import FoodItem, Order, OrderItem
+from django.db import transaction
 
 def home_view(request):
     return render(request, 'home.html')
 
 def menu_view(request):
+    # Ensure database is set up
+    setup_database()
     food_items = FoodItem.objects.all()
     return render(request, 'menu.html', {'food_items': food_items})
+
+def setup_database():
+    """Setup database with initial data if needed"""
+    try:
+        with transaction.atomic():
+            # Check if we have food items
+            if not FoodItem.objects.exists():
+                # Create food items
+                food_items = [
+                    {'name': 'Veg Burger', 'price': 45.00},
+                    {'name': 'Masala Dosa', 'price': 35.00},
+                    {'name': 'Paneer Sandwich', 'price': 40.00},
+                    {'name': 'Chai', 'price': 15.00},
+                    {'name': 'Cold Drink', 'price': 20.00},
+                    {'name': 'Samosa', 'price': 12.00},
+                    {'name': 'Pav Bhaji', 'price': 50.00},
+                ]
+                
+                for item in food_items:
+                    FoodItem.objects.create(name=item['name'], price=item['price'])
+                    
+            # Create admin user if needed
+            from django.contrib.auth.models import User
+            if not User.objects.filter(username='admin').exists():
+                User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+                
+    except Exception as e:
+        print(f"Database setup error: {e}")
 
 def place_order(request):
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip()
-        payment_method = request.POST.get('payment_method', 'cash')
+        payment_method = request.POST.get('payment_method', 'upi')
         
         if not customer_name:
             messages.error(request, 'Customer name is required')
