@@ -16,3 +16,5 @@ python create_admin.py
 
 # Populate sample data
 python populate_data.py
+
+echo "Build completed successfully!"
