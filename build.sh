@@ -2,30 +2,26 @@
 # Exit on error
 set -o errexit
 
-echo "Starting build process..."
+echo "=== Starting Django Build Process ==="
 
 # Install dependencies
-echo "Installing dependencies..."
+echo "📦 Installing dependencies..."
 pip install -r requirements.txt
 
-# Make migrations
-echo "Creating migrations..."
-python manage.py makemigrations
-
-# Run migrations
-echo "Running migrations..."
-python manage.py migrate
+# Setup database
+echo "🗄️ Setting up database..."
+python setup_db.py
 
 # Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
+echo "📂 Collecting static files..."
+python manage.py collectstatic --noinput --verbosity=2
 
-# Create superuser if it doesn't exist
-echo "Creating admin user..."
+# Create superuser
+echo "👤 Creating admin user..."
 python create_admin.py
 
 # Populate sample data
-echo "Populating sample data..."
+echo "🍽️ Adding sample food items..."
 python populate_data.py
 
-echo "Build completed successfully!"
+echo "✅ Build completed successfully!"
