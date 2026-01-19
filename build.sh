@@ -8,24 +8,12 @@ echo "=== Starting Django Build Process ==="
 echo "📦 Installing Python dependencies..."
 pip install -r requirements.txt
 
-# Create database directory
-echo "🗄️ Creating database directory..."
-mkdir -p /tmp
-
-# Run migrations
-echo "🗄️ Running migrations..."
-python manage.py migrate --verbosity=2
+# Make start script executable
+echo "🔧 Making start script executable..."
+chmod +x start.sh
 
 # Collect static files
 echo "📂 Collecting static files..."
 python manage.py collectstatic --noinput --verbosity=2
-
-# Create superuser
-echo "👤 Creating admin user..."
-python create_admin.py
-
-# Populate sample data
-echo "🍽️ Adding sample food items..."
-python populate_data.py
 
 echo "✅ Build completed successfully!"
