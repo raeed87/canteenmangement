@@ -1,1 +1,1 @@
-web: ./start.sh
+web: gunicorn canteen.wsgi:application
