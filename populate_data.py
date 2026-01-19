@@ -18,9 +18,17 @@ food_items = [
 ]
 
 # Clear existing items and add new ones
-FoodItem.objects.all().delete()
+try:
+    FoodItem.objects.all().delete()
+    print("Cleared existing food items")
+except:
+    print("No existing food items to clear")
 
 for item in food_items:
-    FoodItem.objects.create(name=item['name'], price=item['price'])
+    try:
+        FoodItem.objects.create(name=item['name'], price=item['price'])
+        print(f"Created: {item['name']} - Rs.{item['price']}")
+    except Exception as e:
+        print(f"Error creating {item['name']}: {e}")
 
-print("Indian food items created with Rupee pricing!")
+print("Sample food items setup completed!")
