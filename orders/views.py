@@ -15,6 +15,23 @@ def menu_view(request):
 def setup_database():
     """Setup database with initial data if needed"""
     try:
+        # Run migrations first
+        from django.core.management import execute_from_command_line
+        import sys
+        
+        # Temporarily redirect stdout to suppress migration output
+        old_stdout = sys.stdout
+        sys.stdout = open('/dev/null', 'w') if hasattr(sys, 'stdout') else sys.stdout
+        
+        try:
+            execute_from_command_line(['manage.py', 'migrate', '--run-syncdb'])
+        except:
+            pass
+        finally:
+            if sys.stdout != old_stdout:
+                sys.stdout.close()
+            sys.stdout = old_stdout
+        
         with transaction.atomic():
             # Check if we have food items
             if not FoodItem.objects.exists():
