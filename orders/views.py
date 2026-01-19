@@ -1,14 +1,70 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import FoodItem, Order, OrderItem
-from django.db import transaction
+from django.db import transaction, connection
+from django.core.management import execute_from_command_line
 
 def home_view(request):
     return render(request, 'home.html')
 
 def menu_view(request):
+    # Ensure database is ready
+    ensure_database_ready()
     food_items = FoodItem.objects.all()
     return render(request, 'menu.html', {'food_items': food_items})
+
+def ensure_database_ready():
+    """Ensure database tables exist and have data"""
+    try:
+        # Check if tables exist
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='orders_fooditem';")
+            if not cursor.fetchone():
+                # Tables don't exist, create them
+                from django.core.management import call_command
+                call_command('migrate', verbosity=0, interactive=False)
+                
+        # Check if we have data
+        if not FoodItem.objects.exists():
+            create_sample_data()
+            
+    except Exception as e:
+        print(f"Database setup error: {e}")
+        # Try to create tables anyway
+        try:
+            from django.core.management import call_command
+            call_command('migrate', verbosity=0, interactive=False)
+            create_sample_data()
+        except:
+            pass
+
+def create_sample_data():
+    """Create sample food items and admin user"""
+    try:
+        # Create food items
+        food_items = [
+            {'name': 'Veg Burger', 'price': 45.00},
+            {'name': 'Masala Dosa', 'price': 35.00},
+            {'name': 'Paneer Sandwich', 'price': 40.00},
+            {'name': 'Chai', 'price': 15.00},
+            {'name': 'Cold Drink', 'price': 20.00},
+            {'name': 'Samosa', 'price': 12.00},
+            {'name': 'Pav Bhaji', 'price': 50.00},
+        ]
+        
+        for item in food_items:
+            FoodItem.objects.get_or_create(
+                name=item['name'],
+                defaults={'price': item['price']}
+            )
+        
+        # Create admin user
+        from django.contrib.auth.models import User
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+            
+    except Exception as e:
+        print(f"Sample data creation error: {e}")
 
 def setup_database():
     """Setup database with initial data if needed"""
