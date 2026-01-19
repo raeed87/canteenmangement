@@ -46,11 +46,11 @@ TEMPLATES = [
     },
 ]
 
-# Use SQLite database stored in /tmp for Render
+# Database configuration - use in-memory SQLite for Render
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/tmp/db.sqlite3',
+        'NAME': ':memory:',
     }
 }
 
