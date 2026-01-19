@@ -7,8 +7,6 @@ def home_view(request):
     return render(request, 'home.html')
 
 def menu_view(request):
-    # Ensure database is set up
-    setup_database()
     food_items = FoodItem.objects.all()
     return render(request, 'menu.html', {'food_items': food_items})
 
